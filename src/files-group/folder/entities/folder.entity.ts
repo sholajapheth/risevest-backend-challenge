@@ -1,7 +1,8 @@
 // Folder.entity.ts
 import { User } from 'src/users-group/users/entities/user.entity';
-import { PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, ManyToOne, Entity } from 'typeorm';
 
+@Entity('folders')
 export class Folder {
   @PrimaryGeneratedColumn()
   id: number;

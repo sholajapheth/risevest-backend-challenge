@@ -7,26 +7,58 @@ import { FilesModule } from './files-group/files/files.module';
 import { FolderModule } from './files-group/folder/folder.module';
 import { AdminModule } from './users-group/admin/admin.module';
 import { UnsafeFilesModule } from './files-group/unsafe-files/unsafe-files.module';
-
-// postgresql://risevest_backend_challenge_db_owner:ABz7njVfbh0I@ep-orange-mode-a5cnj9pe.us-east-2.aws.neon.tech/risevest_backend_challenge_db?sslmode=require
+import { User } from './users-group/users/entities/user.entity';
+import { File } from './files-group/files/entities/file.entity';
+import { Admin } from './users-group/admin/entities/admin.entity';
+import { Compression } from './files-group/compression/entities/compression.entity';
+import { FileHistory } from './files-group/filehistory/entities/filehistory.entity';
+import { Folder } from './files-group/folder/entities/folder.entity';
+import { UnsafeFile } from './files-group/unsafe-files/entities/unsafe-file.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from './auth-group/auth/auth.module';
 
 @Module({
   imports: [
-    UsersModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'ep-orange-mode-a5cnj9pe.us-east-2.aws.neon.tech',
-      port: 3306,
-      username: 'risevest_backend_challenge_db_owner',
-      password: 'ABz7njVfbh0I',
-      database: 'risevest_backend_challenge_db',
-      entities: [],
-      synchronize: process.env.NODE_ENV === 'development',
+    ConfigModule.forRoot({
+      envFilePath: '.env.development',
+      isGlobal: true,
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        return {
+          type: 'postgres',
+          host: configService.get('DB_HOST'),
+          port: parseInt(configService.get('DB_PORT')),
+          username: configService.get('DB_USERNAME'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_NAME'),
+          ssl: {
+            rejectUnauthorized: false,
+          },
+          extra: {
+            sslmode: 'require',
+          },
+          entities: [
+            User,
+            File,
+            Admin,
+            Compression,
+            FileHistory,
+            Folder,
+            UnsafeFile,
+          ],
+          synchronize: true,
+        };
+      },
+      inject: [ConfigService],
+    }),
+    UsersModule,
     FilesModule,
     FolderModule,
     AdminModule,
     UnsafeFilesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

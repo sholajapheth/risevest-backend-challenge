@@ -1,6 +1,13 @@
 import { File } from 'src/files-group/files/entities/file.entity';
-import { Column, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
+@Entity('compressions')
 export class Compression {
   @PrimaryGeneratedColumn()
   id: number;
